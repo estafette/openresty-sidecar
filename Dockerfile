@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.13.6.1-alpine
+FROM openresty/openresty:1.13.6.2-alpine
 
 LABEL maintainer="estafette.io" \
       description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
