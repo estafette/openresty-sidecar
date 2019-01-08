@@ -40,7 +40,6 @@ ENV OFFLOAD_TO_HOST=localhost \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 7.5, 10, 15, 20, 30, 60, 120}" \
     NGINX_CONF_TMPL_PATH="/tmpl/nginx.conf.tmpl" \
     PROMETHEUS_LUA_TMPL_PATH="/tmpl/prometheus.lua.tmpl" \
-    SSL_PROTOCOLS="TLSv1.2" \
-    GRACEFUL_SHUTDOWN_DELAY_SECONDS="5"
+    SSL_PROTOCOLS="TLSv1.2"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

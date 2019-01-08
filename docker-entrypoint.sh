@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 # inspired by https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86#.k9cjxrx6o
 
@@ -12,7 +12,8 @@ sighup_handler() {
 # SIGTERM-handler
 sigterm_handler() {
   # kubernetes sends a sigterm, where openresty needs SIGQUIT for graceful shutdown
-  echo "Gracefully shutting down openresty..."
+  echo "Gracefully shutting down openresty in 5s..."
+  sleep 5s
   /usr/local/openresty/bin/openresty -s quit
   echo "Finished shutting down openresty!"
 
