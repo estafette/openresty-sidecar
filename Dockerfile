@@ -43,3 +43,6 @@ ENV OFFLOAD_TO_HOST=localhost \
     SSL_PROTOCOLS="TLSv1.2"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# Reset change of stopsignal in openresty container at https://github.com/openresty/docker-openresty/blob/master/alpine/Dockerfile#L124
+STOPSIGNAL SIGTERM
