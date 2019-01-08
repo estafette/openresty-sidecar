@@ -27,8 +27,8 @@ sigterm_handler() {
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' 1 # SIGHUP
-trap 'kill ${!}; sigterm_handler' 15 # SIGTERM
+trap 'kill ${!}; sighup_handler' SIGUSR1 # SIGHUP
+trap 'kill ${!}; sigterm_handler' SIGTERM # SIGTERM
 
 # enforce https
 if [ "${ENFORCE_HTTPS}" != "true" ]
