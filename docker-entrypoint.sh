@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -ex
 
 # inspired by https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86#.k9cjxrx6o
 
