@@ -3,9 +3,6 @@ set -e
 
 # inspired by https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86#.k9cjxrx6o
 
-echo "environment variables:"
-env
-
 # SIGHUP-handler
 sighup_handler() {
   echo "Reloading openresty configuration and certificates..."
