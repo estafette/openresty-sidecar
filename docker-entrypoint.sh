@@ -13,7 +13,7 @@ sighup_handler() {
 sigterm_handler() {
   # kubernetes sends a sigterm, where openresty needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down openresty in ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
-  sleep $GRACEFUL_SHUTDOWN_DELAY_SECONDS
+  sleep "${GRACEFUL_SHUTDOWN_DELAY_SECONDS}"
   /usr/local/openresty/bin/openresty -s quit
   echo "Finished shutting down openresty!"
 
