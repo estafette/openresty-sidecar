@@ -12,8 +12,7 @@ sighup_handler() {
 # SIGTERM-handler
 sigterm_handler() {
   # kubernetes sends a sigterm, where openresty needs SIGQUIT for graceful shutdown
-  echo "Gracefully shutting down openresty in 5s..."
-  sleep 5s
+  echo "Gracefully shutting down openresty..."
   /usr/local/openresty/bin/openresty -s quit
   echo "Finished shutting down openresty!"
 
@@ -27,8 +26,8 @@ sigterm_handler() {
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' SIGUSR1 # SIGHUP
-trap 'kill ${!}; sigterm_handler' SIGTERM # SIGTERM
+trap 'kill ${!}; sighup_handler' 1 # SIGHUP
+trap 'kill ${!}; sigterm_handler' 15 # SIGTERM
 
 # enforce https
 if [ "${ENFORCE_HTTPS}" != "true" ]
