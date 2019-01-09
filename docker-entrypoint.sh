@@ -15,7 +15,6 @@ sigterm_handler() {
   echo "Gracefully shutting down openresty in ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
   sleep $GRACEFUL_SHUTDOWN_DELAY_SECONDS
   /usr/local/openresty/bin/openresty -s quit
-  echo "Finished shutting down openresty!"
 
   # stop inotifywait
   inotifywait_pid=$(pgrep inotifywait)
@@ -67,3 +66,4 @@ while true
 do
   tail -f /dev/null & wait ${!}
 done
+echo "Finished shutting down openresty!"
