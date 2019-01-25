@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.13.6.1-alpine
+FROM openresty/openresty:1.13.6.2-alpine
 
 LABEL maintainer="estafette.io" \
       description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
@@ -28,9 +28,14 @@ ENV OFFLOAD_TO_HOST=localhost \
     DNS_ZONE="estafette.io" \
     CLIENT_BODY_TIMEOUT="60s" \
     CLIENT_HEADER_TIMEOUT="60s" \
-    KEEPALIVE_TIMEOUT="650s" \
-    KEEPALIVE_REQUESTS="10000" \
+    CLIENT_BODY_BUFFER_SIZE="128k" \
+    KEEPALIVE_TIMEOUT="0" \
+    KEEPALIVE_TIMEOUT_HEADER="0" \
     SEND_TIMEOUT="60s" \
+    PROXY_BUFFERING="off" \
+    PROXY_BUFFERS_NUMBER="8" \
+    PROXY_BUFFERS_SIZE="8k" \
+    PROXY_BUFFER_SIZE="16k" \
     PROXY_CONNECT_TIMEOUT="60s" \
     PROXY_SEND_TIMEOUT="60s" \
     PROXY_READ_TIMEOUT="60s" \
@@ -39,6 +44,10 @@ ENV OFFLOAD_TO_HOST=localhost \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 7.5, 10, 15, 20, 30, 60, 120}" \
     NGINX_CONF_TMPL_PATH="/tmpl/nginx.conf.tmpl" \
     PROMETHEUS_LUA_TMPL_PATH="/tmpl/prometheus.lua.tmpl" \
-    SSL_PROTOCOLS="TLSv1.2"
+    SSL_PROTOCOLS="TLSv1.2" \
+    GRACEFUL_SHUTDOWN_DELAY_SECONDS="15"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# Reset change of stopsignal in openresty container at https://github.com/openresty/docker-openresty/blob/master/alpine/Dockerfile#L124
+STOPSIGNAL SIGTERM
