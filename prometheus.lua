@@ -264,7 +264,14 @@ end
 --   an object that should be used to register metrics.
 function Prometheus.init(dict_name, prefix)
   local self = setmetatable({}, Prometheus)
-  self.dict = ngx.shared[dict_name or "prometheus_metrics"]
+  dict_name = dict_name or "prometheus_metrics"
+  self.dict = ngx.shared[dict_name]
+  if self.dict == nil then
+    ngx.log(ngx.ERR,
+      "Dictionary '", dict_name, "' does not seem to exist. ",
+      "Please define the dictionary using `lua_shared_dict`.")
+    return self
+  end
   self.help = {}
   if prefix then
     self.prefix = prefix
@@ -485,13 +492,12 @@ function Prometheus:histogram_observe(name, label_names, label_values, value)
   end
 end
 
--- Present all metrics in a text format compatible with Prometheus.
+-- Prometheus compatible metric data as an array of strings.
 --
--- This function should be used to expose the metrics on a separate HTTP page.
--- It will get the metrics from the dictionary, sort them, and expose them
--- aling with TYPE and HELP comments.
-function Prometheus:collect()
-  ngx.header.content_type = "text/plain"
+-- Returns:
+--   Array of strings with all metrics in a text format compatible with
+--   Prometheus.
+function Prometheus:metric_data()
   if not self.initialized then
     ngx.log(ngx.ERR, "Prometheus module has not been initialized")
     return
@@ -528,7 +534,17 @@ function Prometheus:collect()
       self:log_error("Error getting '", key, "': ", err)
     end
   end
-  ngx.print(output)
+  return output
+end
+
+-- Present all metrics in a text format compatible with Prometheus.
+--
+-- This function should be used to expose the metrics on a separate HTTP page.
+-- It will get the metrics from the dictionary, sort them, and expose them
+-- aling with TYPE and HELP comments.
+function Prometheus:collect()
+  ngx.header.content_type = "text/plain"
+  ngx.print(self:metric_data())
 end
 
 return Prometheus
