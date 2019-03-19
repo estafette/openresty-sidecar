@@ -6,6 +6,7 @@ LABEL maintainer="estafette.io" \
 EXPOSE 80 81 82 443 9101
 
 COPY nginx.conf /tmpl/nginx.conf.tmpl
+COPY cors.conf /tmpl/cors.conf.tmpl
 COPY lua-init.conf /usr/local/openresty/nginx/conf/includes/lua-init.conf
 COPY prometheus.lua /tmpl/prometheus.lua.tmpl
 COPY ./docker-entrypoint.sh /
@@ -44,8 +45,12 @@ ENV OFFLOAD_TO_HOST=localhost \
     PROMETHEUS_METRICS_PORT="9101" \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 7.5, 10, 15, 20, 30, 60, 120}" \
     NGINX_CONF_TMPL_PATH="/tmpl/nginx.conf.tmpl" \
+    NGINX_CORS_CONF_TMPL_PATH="/tmpl/cors.conf.tmpl" \
     PROMETHEUS_LUA_TMPL_PATH="/tmpl/prometheus.lua.tmpl" \
     SSL_PROTOCOLS="TLSv1.2" \
+    SETUP_CORS="false" \
+    CORS_ALLOWED_ORIGINS="*" \
+    CORS_MAX_AGE="86400" \
     GRACEFUL_SHUTDOWN_DELAY_SECONDS="15"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
