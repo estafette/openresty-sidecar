@@ -58,7 +58,7 @@ end
 --
 -- Returns:
 --   an error message or nil
-function Metric:check_labels(label_values)
+function Metric:check_label_values(label_values)
   if self.label_names == nil and label_values == nil then
     return
   elseif self.label_names == nil and label_values ~= nil then
@@ -86,7 +86,7 @@ local Counter = Metric:new()
 --   label_values: an array of label values. Can be nil (i.e. not defined) for
 --     metrics that have no labels.
 function Counter:inc(value, label_values)
-  local err = self:check_labels(label_values)
+  local err = self:check_label_values(label_values)
   if err ~= nil then
     self.prometheus:log_error(err)
     return
@@ -106,7 +106,7 @@ function Gauge:set(value, label_values)
     self.prometheus:log_error("No value passed for " .. self.name)
     return
   end
-  local err = self:check_labels(label_values)
+  local err = self:check_label_values(label_values)
   if err ~= nil then
     self.prometheus:log_error(err)
     return
@@ -126,7 +126,7 @@ function Histogram:observe(value, label_values)
     self.prometheus:log_error("No value passed for " .. self.name)
     return
   end
-  local err = self:check_labels(label_values)
+  local err = self:check_label_values(label_values)
   if err ~= nil then
     self.prometheus:log_error(err)
     return
@@ -153,8 +153,8 @@ local function full_metric_name(name, label_names, label_values)
   local label_parts = {}
   for idx, key in ipairs(label_names) do
     local label_value = (string.format("%s", label_values[idx])
+      :gsub("[^\032-\126]", "")  -- strip non-printable characters
       :gsub("\\", "\\\\")
-      :gsub("\n", "\\n")
       :gsub('"', '\\"'))
     table.insert(label_parts, key .. '="' .. label_value .. '"')
   end
@@ -223,6 +223,32 @@ local function copy_table(table)
   return new
 end
 
+-- Check metric name and label names for correctness.
+--
+-- Regular expressions to validate metric and label names are
+-- documented in https://prometheus.io/docs/concepts/data_model/
+--
+-- Args:
+--   metric_name: (string) metric name.
+--   label_names: label names (array of strings).
+--
+-- Returns:
+--   Either an error string, or nil of no errors were found.
+local function check_metric_and_label_names(metric_name, label_names)
+  if not metric_name:match("^[a-zA-Z_:][a-zA-Z0-9_:]*$") then
+    return "Metric name '" .. metric_name .. "' is invalid"
+  end
+  for _, label_name in ipairs(label_names or {}) do
+    if label_name == "le" then
+      return "Invalid label name 'le' in " .. metric_name
+    end
+    if not label_name:match("^[a-zA-Z_][a-zA-Z0-9_]*$") then
+      return "Metric '" .. metric_name .. "' label name '" .. label_name ..
+             "' is invalid"
+    end
+  end
+end
+
 -- Initialize the module.
 --
 -- This should be called once from the `init_by_lua` section in nginx
@@ -238,7 +264,14 @@ end
 --   an object that should be used to register metrics.
 function Prometheus.init(dict_name, prefix)
   local self = setmetatable({}, Prometheus)
-  self.dict = ngx.shared[dict_name or "prometheus_metrics"]
+  dict_name = dict_name or "prometheus_metrics"
+  self.dict = ngx.shared[dict_name]
+  if self.dict == nil then
+    ngx.log(ngx.ERR,
+      "Dictionary '", dict_name, "' does not seem to exist. ",
+      "Please define the dictionary using `lua_shared_dict`.")
+    return self
+  end
   self.help = {}
   if prefix then
     self.prefix = prefix
@@ -283,6 +316,12 @@ function Prometheus:counter(name, description, label_names)
     return
   end
 
+  local err = check_metric_and_label_names(name, label_names)
+  if err ~= nil then
+    self:log_error(err)
+    return
+  end
+
   if self.registered[name] then
     self:log_error("Duplicate metric " .. name)
     return
@@ -307,6 +346,12 @@ end
 function Prometheus:gauge(name, description, label_names)
   if not self.initialized then
     ngx.log(ngx.ERR, "Prometheus module has not been initialized")
+    return
+  end
+
+  local err = check_metric_and_label_names(name, label_names)
+  if err ~= nil then
+    self:log_error(err)
     return
   end
 
@@ -339,11 +384,10 @@ function Prometheus:histogram(name, description, label_names, buckets)
     return
   end
 
-  for _, label_name in ipairs(label_names or {}) do
-    if label_name == "le" then
-      self:log_error("Invalid label name 'le' in " .. name)
-      return
-    end
+  local err = check_metric_and_label_names(name, label_names)
+  if err ~= nil then
+    self:log_error(err)
+    return
   end
 
   for _, suffix in ipairs({"", "_bucket", "_count", "_sum"}) do
@@ -448,13 +492,12 @@ function Prometheus:histogram_observe(name, label_names, label_values, value)
   end
 end
 
--- Present all metrics in a text format compatible with Prometheus.
+-- Prometheus compatible metric data as an array of strings.
 --
--- This function should be used to expose the metrics on a separate HTTP page.
--- It will get the metrics from the dictionary, sort them, and expose them
--- aling with TYPE and HELP comments.
-function Prometheus:collect()
-  ngx.header.content_type = "text/plain"
+-- Returns:
+--   Array of strings with all metrics in a text format compatible with
+--   Prometheus.
+function Prometheus:metric_data()
   if not self.initialized then
     ngx.log(ngx.ERR, "Prometheus module has not been initialized")
     return
@@ -466,25 +509,42 @@ function Prometheus:collect()
   table.sort(keys)
 
   local seen_metrics = {}
+  local output = {}
   for _, key in ipairs(keys) do
     local value, err = self.dict:get(key)
     if value then
       local short_name = short_metric_name(key)
       if not seen_metrics[short_name] then
         if self.help[short_name] then
-          ngx.say("# HELP " .. self.prefix .. short_name .. " " .. self.help[short_name])
+          table.insert(output, string.format("# HELP %s%s %s\n",
+            self.prefix, short_name, self.help[short_name]))
         end
         if self.type[short_name] then
-          ngx.say("# TYPE " .. self.prefix .. short_name .. " " .. self.type[short_name])
+          table.insert(output, string.format("# TYPE %s%s %s\n",
+            self.prefix, short_name, self.type[short_name]))
         end
         seen_metrics[short_name] = true
       end
       -- Replace "Inf" with "+Inf" in each metric's last bucket 'le' label.
-      ngx.say(self.prefix .. key:gsub('le="Inf"', 'le="+Inf"'), " ", value)
+      if key:find('le="Inf"', 1, true) then
+        key = key:gsub('le="Inf"', 'le="+Inf"')
+      end
+      table.insert(output, string.format("%s%s %s\n", self.prefix, key, value))
     else
       self:log_error("Error getting '", key, "': ", err)
     end
   end
+  return output
+end
+
+-- Present all metrics in a text format compatible with Prometheus.
+--
+-- This function should be used to expose the metrics on a separate HTTP page.
+-- It will get the metrics from the dictionary, sort them, and expose them
+-- aling with TYPE and HELP comments.
+function Prometheus:collect()
+  ngx.header.content_type = "text/plain"
+  ngx.print(self:metric_data())
 end
 
 return Prometheus
