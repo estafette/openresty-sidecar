@@ -15,7 +15,7 @@ RUN chmod 500 /docker-entrypoint.sh
 
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update apache2-utils inotify-tools gettext && \
+    apk add --update inotify-tools gettext && \
     rm -rf /var/cache/apk/*
 
 # runtime environment variables
