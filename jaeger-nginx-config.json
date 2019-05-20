@@ -1,0 +1,12 @@
+{
+  "service_name": "openresty",
+  "disabled": false,
+  "reporter": {
+    "logSpans": true,
+    "localAgentHostPort": "${JAEGER_AGENT_HOST}:${JAEGER_AGENT_PORT}"
+  },
+  "sampler": {
+    "type": "${JAEGER_SAMPLER_TYPE}",
+    "param": "${JAEGER_SAMPLER_PARAM}"
+  }
+}

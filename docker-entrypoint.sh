@@ -55,6 +55,9 @@ echo "Generating prometheus.lua..."
 mkdir -p /lua-modules
 cat ${PROMETHEUS_LUA_TMPL_PATH} | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua
 
+echo "Generating jaeger-nginx-config.json..."
+cat /tmpl/jaeger-nginx-config.json.tmpl | envsubst \$JAEGER_AGENT_HOST,\$JAEGER_AGENT_PORT,\$JAEGER_SAMPLER_TYPE,\$JAEGER_SAMPLER_PARAM > /etc/jaeger-nginx-config.json
+
 # watch for ssl certificate changes
 init_inotifywait() {
   echo "Starting inotifywait to detect changes in certificates..."

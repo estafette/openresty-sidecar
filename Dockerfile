@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.13.6.2-alpine
+FROM opentracing/openresty:0.8.0
 
 LABEL maintainer="estafette.io" \
       description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
@@ -9,14 +9,18 @@ COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY cors.conf /tmpl/cors.conf.tmpl
 COPY lua-init.conf /usr/local/openresty/nginx/conf/includes/lua-init.conf
 COPY prometheus.lua /tmpl/prometheus.lua.tmpl
+COPY jaeger-nginx-config.json /tmpl/jaeger-nginx-config.json.tmpl
 COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
 
 # install inotifywait to detect changes to config and certificates
-RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext && \
-    rm -rf /var/cache/apk/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      inotify-tools \
+      gettext \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
@@ -51,7 +55,11 @@ ENV OFFLOAD_TO_HOST=localhost \
     SETUP_CORS="false" \
     CORS_ALLOWED_ORIGINS="*" \
     CORS_MAX_AGE="86400" \
-    GRACEFUL_SHUTDOWN_DELAY_SECONDS="15"
+    GRACEFUL_SHUTDOWN_DELAY_SECONDS="15" \
+    JAEGER_AGENT_HOST="localhost" \
+    JAEGER_AGENT_PORT="6831" \
+    JAEGER_SAMPLER_TYPE="remote" \
+    JAEGER_SAMPLER_PARAM="0.001"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
