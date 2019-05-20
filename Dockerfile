@@ -9,7 +9,7 @@ COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY cors.conf /tmpl/cors.conf.tmpl
 COPY lua-init.conf /usr/local/openresty/nginx/conf/includes/lua-init.conf
 COPY prometheus.lua /tmpl/prometheus.lua.tmpl
-COPY jaeger-nginx-config.json /tmpl/jaeger-nginx-config.json.tmpl
+COPY jaeger-nginx-config.yaml /tmpl/jaeger-nginx-config.yaml.tmpl
 COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
@@ -59,7 +59,8 @@ ENV OFFLOAD_TO_HOST=localhost \
     JAEGER_AGENT_HOST="localhost" \
     JAEGER_AGENT_PORT="6831" \
     JAEGER_SAMPLER_TYPE="remote" \
-    JAEGER_SAMPLER_PARAM="0.001"
+    JAEGER_SAMPLER_PARAM="0.001" \
+    JAEGER_REPORTER_LOG_SPANS="false"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
