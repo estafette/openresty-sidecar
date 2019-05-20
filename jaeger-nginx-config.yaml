@@ -1,17 +1,12 @@
 service_name: openresty-sidecar
 disabled: false
 sampler:
-    type: ${JAEGER_SAMPLER_TYPE}
-    param: ${JAEGER_SAMPLER_PARAM}
+  type: ${JAEGER_SAMPLER_TYPE}
+  param: ${JAEGER_SAMPLER_PARAM}
+  samplingServerURL: http://${JAEGER_AGENT_HOST}:5778/sampling
 reporter:
-    logSpans: ${JAEGER_REPORTER_LOG_SPANS}
-    localAgentHostPort: ${JAEGER_AGENT_HOST}:${JAEGER_AGENT_PORT}
-headers:
-    jaegerDebugHeader: jaeger-debug-id
-    jaegerBaggageHeader: jaeger-baggage
-    TraceContextHeaderName: uber-trace-id
-    traceBaggageHeaderPrefix: "uberctx-"
+  logSpans: ${JAEGER_REPORTER_LOG_SPANS}
+  localAgentHostPort: ${JAEGER_AGENT_HOST}:${JAEGER_AGENT_PORT}
 baggage_restrictions:
-    denyBaggageOnInitializationFailure: false
-    hostPort: ${JAEGER_AGENT_HOST}:5778
-    refreshInterval: 60
+  denyBaggageOnInitializationFailure: false
+  hostPort: ${JAEGER_AGENT_HOST}:5778
