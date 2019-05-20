@@ -55,7 +55,7 @@ echo "Generating prometheus.lua..."
 mkdir -p /lua-modules
 cat ${PROMETHEUS_LUA_TMPL_PATH} | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua
 
-echo "Generating jaeger-nginx-config.json..."
+echo "Generating jaeger-nginx-config.yaml..."
 cat /tmpl/jaeger-nginx-config.yaml.tmpl | envsubst \$JAEGER_AGENT_HOST,\$JAEGER_AGENT_PORT,\$JAEGER_SAMPLER_TYPE,\$JAEGER_SAMPLER_PARAM,\$JAEGER_REPORTER_LOG_SPANS > /etc/jaeger-nginx-config.yaml
 
 # watch for ssl certificate changes
