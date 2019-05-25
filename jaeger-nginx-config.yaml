@@ -1,4 +1,4 @@
-service_name: openresty-sidecar
+service_name: ${SERVICE_NAME}
 disabled: false
 sampler:
   type: ${JAEGER_SAMPLER_TYPE}
