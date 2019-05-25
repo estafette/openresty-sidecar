@@ -1,4 +1,4 @@
-service_name: ${SERVICE_NAME}
+service_name: ${SERVICE_NAME}-openresty
 disabled: false
 sampler:
   type: ${JAEGER_SAMPLER_TYPE}
