@@ -83,6 +83,7 @@ RUN apk add --no-cache --virtual .build-deps \
         git \
         libxslt-dev \
         linux-headers \
+        lua5.2-dev \
         make \
         perl-dev \
         readline-dev \
