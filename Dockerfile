@@ -92,9 +92,9 @@ RUN apk add --no-cache --virtual .build-deps \
         zlib-dev \
         ${RESTY_ADD_PACKAGE_BUILDDEPS} \
     && apk add --no-cache \
+        gcompat \
         gd \
         geoip \
-        libc6-compat \
         libgcc \
         libstdc++ \
         libxslt \
