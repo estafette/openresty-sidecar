@@ -76,6 +76,7 @@ ARG _RESTY_CONFIG_DEPS="--with-openssl=/tmp/openssl-${RESTY_OPENSSL_VERSION} --w
 
 RUN apk add --no-cache --virtual .build-deps \
         build-base \
+        cmake \
         curl \
         gd-dev \
         geoip-dev \
