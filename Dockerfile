@@ -79,6 +79,7 @@ RUN apk add --no-cache --virtual .build-deps \
         curl \
         gd-dev \
         geoip-dev \
+        git \
         libxslt-dev \
         linux-headers \
         make \
