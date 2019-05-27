@@ -44,6 +44,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --with-threads \
     --with-compat \
     --add-dynamic-module=/src/opentracing \
+    --with-debug \
     "
 ARG RESTY_CONFIG_OPTIONS_MORE=""
 ARG RESTY_ADD_PACKAGE_BUILDDEPS=""
