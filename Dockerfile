@@ -2,7 +2,7 @@
 # https://github.com/openresty/docker-openresty
 
 ARG RESTY_IMAGE_BASE="alpine"
-ARG RESTY_IMAGE_TAG="3.8"
+ARG RESTY_IMAGE_TAG="3.9"
 
 FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
 
@@ -42,6 +42,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --with-stream \
     --with-stream_ssl_module \
     --with-threads \
+    --with-compat \
     --add-dynamic-module=/src/opentracing \
     "
 ARG RESTY_CONFIG_OPTIONS_MORE=""
