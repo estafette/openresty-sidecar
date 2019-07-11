@@ -32,6 +32,7 @@ ENV OFFLOAD_TO_HOST=localhost \
     NAMESPACE="mynamespace" \
     DNS_ZONE="estafette.io" \
     WORKER_PROCESSES="1" \
+    WORKER_CONNECTIONS="1024" \
     CLIENT_BODY_TIMEOUT="60s" \
     CLIENT_HEADER_TIMEOUT="60s" \
     CLIENT_BODY_BUFFER_SIZE="128k" \
