@@ -12,6 +12,39 @@ pipelines:
     repositories:
     - estafette
 
+  check-container:
+    parallelStages:
+      check-efficiency:
+        image: extensions/docker:dev
+        action: dive
+        repositories:
+        - estafette
+
+      vulnerability-scan:
+        image: extensions/docker:dev
+        action: trivy
+        repositories:
+        - estafette
+
+  test:
+    services:
+    - name: ci.estafette.io
+      image: estafette/estafette-ci-web:0.1.634
+    - name: myservice.mynamespace.svc.cluster.local
+      image: estafette/openresty-sidecar:${ESTAFETTE_BUILD_VERSION}
+      env:
+        SERVICE_NAME: myservice
+        NAMESPACE: mynamespace
+        ENV OFFLOAD_TO_HOST: ci.estafette.io
+        OFFLOAD_TO_PORT: 5000
+      readiness:
+        path: /robots.txt
+        port: 80
+    image: alpine:3.10
+    commands:
+    - apk add curl
+    - curl --fail http://myservice.mynamespace.svc.cluster.local/manifest/encrypt
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
