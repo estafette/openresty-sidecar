@@ -11,6 +11,8 @@ pipelines:
     action: build
     repositories:
     - estafette
+    dontExpand:
+    - PATH
 
   check-container:
     parallelStages:

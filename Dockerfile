@@ -1,172 +1,70 @@
-# Dockerfile - alpine
-# https://github.com/openresty/docker-openresty
+FROM gcc:9.2.0
 
-ARG RESTY_IMAGE_BASE="alpine"
-ARG RESTY_IMAGE_TAG="3.9"
+ARG OPENTRACING_CPP_VERSION="v1.6.0"
+ARG OPENTRACING_NGINX_VERSION="v0.9.0"
+ARG JAEGER_CPP_VERSION="v0.5.0"
 
-FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
+# install cmake
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-Linux-x86_64.sh \
+    -q -O /tmp/cmake-install.sh \
+    && chmod u+x /tmp/cmake-install.sh \
+    && mkdir /usr/bin/cmake \
+    && /tmp/cmake-install.sh --skip-license --prefix=/usr/bin/cmake \
+    && rm /tmp/cmake-install.sh
 
-LABEL maintainer="Evan Wies <evan@neomantra.net>"
+ENV PATH="/usr/bin/cmake/bin:${PATH}"
 
-# Docker Build Arguments
-ARG RESTY_VERSION="1.15.8.1"
-ARG RESTY_OPENSSL_VERSION="1.0.2r"
-ARG RESTY_PCRE_VERSION="8.42"
-ARG RESTY_J="1"
-ARG RESTY_CONFIG_OPTIONS="\
-    --with-file-aio \
-    --with-http_addition_module \
-    --with-http_auth_request_module \
-    --with-http_dav_module \
-    --with-http_flv_module \
-    --with-http_geoip_module=dynamic \
-    --with-http_gunzip_module \
-    --with-http_gzip_static_module \
-    --with-http_image_filter_module=dynamic \
-    --with-http_mp4_module \
-    --with-http_random_index_module \
-    --with-http_realip_module \
-    --with-http_secure_link_module \
-    --with-http_slice_module \
-    --with-http_ssl_module \
-    --with-http_stub_status_module \
-    --with-http_sub_module \
-    --with-http_v2_module \
-    --with-http_xslt_module=dynamic \
-    --with-ipv6 \
-    --with-mail \
-    --with-mail_ssl_module \
-    --with-md5-asm \
-    --with-pcre-jit \
-    --with-sha1-asm \
-    --with-stream \
-    --with-stream_ssl_module \
-    --with-threads \
-    --with-compat \
-    --add-dynamic-module=/src/opentracing \
-    --with-debug \
-    "
-ARG RESTY_CONFIG_OPTIONS_MORE=""
-ARG RESTY_ADD_PACKAGE_BUILDDEPS=""
-ARG RESTY_ADD_PACKAGE_RUNDEPS=""
-ARG RESTY_EVAL_PRE_CONFIGURE=""
-ARG RESTY_EVAL_POST_MAKE=""
+# clone repositories to build
+RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
+    && git clone -q -b ${OPENTRACING_NGINX_VERSION} https://github.com/opentracing-contrib/nginx-opentracing.git \
+    && git clone -q -b ${JAEGER_CPP_VERSION} https://github.com/jaegertracing/jaeger-client-cpp.git
 
-ARG OPENTRACING_CPP_VERSION="v1.5.1"
-ARG OPENTRACING_NGINX_VERSION="v0.8.0"
-ARG LUA_BRIDGE_TRACER_VERSION="696c6f34acc25d5caf6d0b6eac33b978f04b0909"
-ARG JAEGER_VERSION="v0.4.2"
+# build opentracing-cpp
+RUN cd opentracing-cpp \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make \
+    && make install \
+    && cd .. \
+    && cd ..
 
-LABEL resty_version="${RESTY_VERSION}"
-LABEL resty_openssl_version="${RESTY_OPENSSL_VERSION}"
-LABEL resty_pcre_version="${RESTY_PCRE_VERSION}"
-LABEL resty_config_options="${RESTY_CONFIG_OPTIONS}"
-LABEL resty_config_options_more="${RESTY_CONFIG_OPTIONS_MORE}"
-LABEL resty_add_package_builddeps="${RESTY_ADD_PACKAGE_BUILDDEPS}"
-LABEL resty_add_package_rundeps="${RESTY_ADD_PACKAGE_RUNDEPS}"
-LABEL resty_eval_pre_configure="${RESTY_EVAL_PRE_CONFIGURE}"
-LABEL resty_eval_post_make="${RESTY_EVAL_POST_MAKE}"
+# # build jaeger-client-cpp
+# RUN cd jaeger-client-cpp \
+#     && mkdir build \
+#     && cd build \
+#     && cmake .. \
+#     && make \
+#     && make install \
+#     && cd .. \
+#     && cd ..
 
-# These are not intended to be user-specified
-ARG _RESTY_CONFIG_DEPS="--with-openssl=/tmp/openssl-${RESTY_OPENSSL_VERSION} --with-pcre=/tmp/pcre-${RESTY_PCRE_VERSION}"
+# # build nginx-opentracing
+# RUN cd nginx-opentracing \
+#     && mkdir build \
+#     && cd build \
+#     && cmake .. \
+#     && make \
+#     && make install \
+#     && cd .. \
+#     && cd ..
 
+RUN ls -latr opentracing-cpp \
+    && ls -latr opentracing-cpp\build \
+    && ls -latr jaeger-client-cpp \
+    && ls -latr nginx-opentracing
 
-# 1) Install apk dependencies
-# 2) Download and untar OpenSSL, PCRE, and OpenResty
-# 3) Build OpenResty
-# 4) Cleanup
+FROM openresty/openresty:1.15.8.2-6-alpine
 
-RUN apk add --no-cache --virtual .build-deps \
-        build-base \
-        cmake \
-        curl \
-        gd-dev \
-        geoip-dev \
-        git \
-        libxslt-dev \
-        linux-headers \
-        lua5.2-dev \
-        make \
-        perl-dev \
-        readline-dev \
-        zlib-dev \
-        ${RESTY_ADD_PACKAGE_BUILDDEPS} \
-    && apk add --no-cache \
-        gcompat \
-        gd \
-        geoip \
-        libgcc \
-        libstdc++ \
-        libxslt \
-        zlib \
-        ${RESTY_ADD_PACKAGE_RUNDEPS} \
-    ### Build opentracing-cpp
-    && cd /tmp \
-    && git clone -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
-    && cd opentracing-cpp \
-    && mkdir .build && cd .build \
-    && cmake -DCMAKE_BUILD_TYPE=Release \
-              -DBUILD_MOCKTRACER=OFF \
-              -DBUILD_STATIC_LIBS=OFF \
-              -DBUILD_TESTING=OFF .. \
-    && make && make install \
-    && cd /tmp \
-    && rm -rf opentracing-cpp \
-    ### Build bridge tracer
-    && cd /tmp \
-    && git clone https://github.com/opentracing/lua-bridge-tracer.git \
-    && cd lua-bridge-tracer \
-    && git checkout ${LUA_BRIDGE_TRACER_VERSION} \
-    && mkdir .build && cd .build \
-    && cmake -DCMAKE_BUILD_TYPE=Release \
-              .. \
-    && make && make install \
-    && cd /tmp \
-    && rm -rf lua-bridge-tracer \
-    ### Install tracers
-    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/releases/download/${JAEGER_VERSION}/libjaegertracing_plugin.linux_amd64.so -o /usr/local/lib/libjaegertracing_plugin.so \
-    # clone nginx-opentracing repo to /src
-    && git clone -b ${OPENTRACING_NGINX_VERSION} https://github.com/opentracing-contrib/nginx-opentracing.git /src \
-    ### Build openresty
-    && cd /tmp \
-    && if [ -n "${RESTY_EVAL_PRE_CONFIGURE}" ]; then eval $(echo ${RESTY_EVAL_PRE_CONFIGURE}); fi \
-    && curl -fSL https://www.openssl.org/source/openssl-${RESTY_OPENSSL_VERSION}.tar.gz -o openssl-${RESTY_OPENSSL_VERSION}.tar.gz \
-    && tar xzf openssl-${RESTY_OPENSSL_VERSION}.tar.gz \
-    && curl -fSL https://ftp.pcre.org/pub/pcre/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
-    && tar xzf pcre-${RESTY_PCRE_VERSION}.tar.gz \
-    && curl -fSL https://openresty.org/download/openresty-${RESTY_VERSION}.tar.gz -o openresty-${RESTY_VERSION}.tar.gz \
-    && tar xzf openresty-${RESTY_VERSION}.tar.gz \
-    && cd /tmp/openresty-${RESTY_VERSION} \
-    && ./configure -j${RESTY_J} ${_RESTY_CONFIG_DEPS} ${RESTY_CONFIG_OPTIONS} ${RESTY_CONFIG_OPTIONS_MORE} \
-    && make -j${RESTY_J} \
-    && make -j${RESTY_J} install \
-    && cd /tmp \
-    && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
-    && rm -rf \
-        openssl-${RESTY_OPENSSL_VERSION} \
-        openssl-${RESTY_OPENSSL_VERSION}.tar.gz \
-        openresty-${RESTY_VERSION}.tar.gz openresty-${RESTY_VERSION} \
-        pcre-${RESTY_PCRE_VERSION}.tar.gz pcre-${RESTY_PCRE_VERSION} \
-    && apk del .build-deps \
-    && ln -sf /dev/stdout /usr/local/openresty/nginx/logs/access.log \
-    && ln -sf /dev/stderr /usr/local/openresty/nginx/logs/error.log \
-    && ls -l /usr/local/lib
-
-# Add additional binaries into PATH for convenience
-ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
+LABEL maintainer="estafette.io" \
+      description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
 
 # Copy nginx configuration files
 # COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
-CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
-
-# Use SIGQUIT instead of default SIGTERM to cleanly drain requests
-# See https://github.com/openresty/docker-openresty/blob/master/README.md#tips--pitfalls
-# STOPSIGNAL SIGQUIT
-
-LABEL maintainer="estafette.io" \
-      description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
+COPY --from=0 /opentracing-cpp/build/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
+COPY --from=0 /jaeger-client-cpp/build/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
 
 EXPOSE 80 81 82 443 9101
 
