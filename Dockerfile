@@ -49,7 +49,11 @@ LABEL maintainer="estafette.io" \
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
     apk add --update inotify-tools gettext libc6-compat gcompat && \
-    apk --allow-untrusted --no-cache -X http://apkproxy.heroku.com/andyshinn/alpine-pkg-glibc add glibc glibc-bin && \
+    rm -rf /var/cache/apk/*
+
+RUN apk --no-cache add ca-certificates openssl && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
+    apk --no-cache -X http://apkproxy.heroku.com/sgerrand/alpine-pkg-glibc add glibc glibc-bin && \
     rm -rf /var/cache/apk/*
 
 # copy all tracing related files built in the previous stage
