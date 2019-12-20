@@ -23,7 +23,7 @@ RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/op
 RUN cd opentracing-cpp \
     && mkdir build \
     && cd build \
-    && cmake .. \
+    && cmake -DBUILD_TESTING=OFF .. \
     && make \
     && make install \
     && cd ../..
