@@ -32,7 +32,7 @@ RUN cd opentracing-cpp \
 RUN cd jaeger-client-cpp \
     && mkdir build \
     && cd build \
-    && cmake .. || cat /jaeger-client-cpp/build/CMakeFiles/CMakeOutput.log \
+    && cmake -DBUILD_TESTING=OFF .. || cat /jaeger-client-cpp/build/CMakeFiles/CMakeOutput.log \
     && make \
     && make install \
     && cd ../..
