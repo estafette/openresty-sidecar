@@ -18,7 +18,10 @@ RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/op
 RUN cd /opentracing-cpp \
     && mkdir build \
     && cd build \
-    && cmake -DBUILD_TESTING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DBUILD_MOCKTRACER=OFF \
+             -DBUILD_STATIC_LIBS=OFF \
+             -DBUILD_TESTING=OFF .. \
     && make \
     && make install
 
@@ -26,7 +29,9 @@ RUN cd /opentracing-cpp \
 RUN cd /jaeger-client-cpp \
     && mkdir build \
     && cd build \
-    && cmake -DBUILD_TESTING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DBUILD_STATIC_LIBS=OFF \
+             -DBUILD_TESTING=OFF .. \
     && make \
     && make install
 
