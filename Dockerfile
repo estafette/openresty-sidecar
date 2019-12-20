@@ -47,7 +47,7 @@ RUN cd jaeger-client-cpp \
 #     && cd ../..
 
 RUN ls -latr opentracing-cpp/build/output \
-    && ls -latr jaeger-client-cpp/build/output \
+    && ls -latr jaeger-client-cpp/build/output
     # && ls -latr nginx-opentracing
 
 FROM openresty/openresty:1.15.8.2-6-alpine
