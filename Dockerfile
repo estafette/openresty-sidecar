@@ -46,9 +46,14 @@ RUN cd jaeger-client-cpp \
 #     && make install \
 #     && cd ../..
 
+RUN cd nginx-opentracing \
+    wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
+    tar -xzf - \
+    cd ..
+
 RUN ls -latr opentracing-cpp/build/output \
-    && ls -latr jaeger-client-cpp/build
-    # && ls -latr nginx-opentracing
+    && ls -latr jaeger-client-cpp/build \
+    && ls -latr nginx-opentracing
 
 FROM openresty/openresty:1.15.8.2-6-alpine
 
@@ -66,7 +71,8 @@ COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
 COPY --from=0 /opentracing-cpp/build/output/libopentracing_mocktracer.so /usr/local/lib/libopentracing_mocktracer.so
-COPY --from=0 /jaeger-client-cpp/build/output/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
+COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so /usr/local/lib/libjaegertracing_plugin.so
+COPY --from=0 /nginx-opentracing/linux-amd64-nginx-1.15.8-ngx_http_module.so /usr/local/openresty/nginx/modules/ngx_http_opentracing_module.so
 
 EXPOSE 80 81 82 443 9101
 
