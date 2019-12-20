@@ -30,7 +30,7 @@ RUN cd /opentracing-cpp \
 RUN cd /jaeger-client-cpp \
     && mkdir build \
     && cd build \
-    && cmake -DBUILD_TESTING=OFF .. || cat /jaeger-client-cpp/build/CMakeFiles/CMakeOutput.log \
+    && cmake -DBUILD_TESTING=OFF .. \
     && make \
     && make install
 
@@ -52,7 +52,7 @@ LABEL maintainer="estafette.io" \
 
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext libc6-compat gcompat && \
+    apk add --update inotify-tools gettext libc6-compat gcompat glibc && \
     rm -rf /var/cache/apk/*
 
 # copy all tracing related files built in the previous stage
