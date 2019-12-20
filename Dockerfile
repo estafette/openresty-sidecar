@@ -7,19 +7,8 @@ ARG JAEGER_CPP_VERSION="v0.5.0"
 RUN apk update && \
     apk add \
         build-base \
-        git
-
-# install cmake
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-Linux-x86_64.sh \
-    -q -O /tmp/cmake-install.sh \
-    && chmod u+x /tmp/cmake-install.sh \
-    && mkdir /usr/bin/cmake \
-    && /tmp/cmake-install.sh --skip-license --prefix=/usr/bin/cmake \
-    && rm /tmp/cmake-install.sh \
-    && ls -latr /usr/bin/cmake/bin \
-    && chmod +x /usr/bin/cmake/bin/cmake
-
-ENV PATH="/usr/bin/cmake/bin:${PATH}"
+        git \
+        cmake
 
 # clone repositories to build
 RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
