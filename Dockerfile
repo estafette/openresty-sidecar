@@ -98,7 +98,6 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
 
 # copy all tracing related files built in the previous stage
 COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
-COPY --from=0 /opentracing-cpp/build/output/libopentracing_mocktracer.so /usr/local/lib/libopentracing_mocktracer.so
 COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so /usr/local/lib/libjaegertracing_plugin.so
 COPY --from=0 /nginx-opentracing/ngx_http_opentracing_module.so /usr/local/openresty/nginx/modules/ngx_http_opentracing_module.so
 
