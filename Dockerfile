@@ -47,9 +47,9 @@ RUN cd jaeger-client-cpp \
 #     && cd ../..
 
 RUN cd nginx-opentracing \
-    wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
+    && bwget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
     tar -xzf - \
-    cd ..
+    && cd ..
 
 RUN ls -latr opentracing-cpp/build/output \
     && ls -latr jaeger-client-cpp/build \
