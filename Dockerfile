@@ -32,9 +32,9 @@ RUN cd opentracing-cpp \
 RUN cd jaeger-client-cpp \
     && mkdir build \
     && cd build \
-    && cmake .. \
+    && cmake .. || cat /jaeger-client-cpp/build/CMakeFiles/CMakeOutput.log \
     && make \
-    # && make install \
+    && make install \
     && cd ../..
 
 # # build nginx-opentracing
