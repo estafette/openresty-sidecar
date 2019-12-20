@@ -16,41 +16,31 @@ ENV PATH="/usr/bin/cmake/bin:${PATH}"
 
 # clone repositories to build
 RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
-    && git clone -q -b ${OPENTRACING_NGINX_VERSION} https://github.com/opentracing-contrib/nginx-opentracing.git \
     && git clone -q -b ${JAEGER_CPP_VERSION} https://github.com/jaegertracing/jaeger-client-cpp.git
 
 # build opentracing-cpp
-RUN cd opentracing-cpp \
+RUN cd /opentracing-cpp \
     && mkdir build \
     && cd build \
     && cmake -DBUILD_TESTING=OFF .. \
     && make \
-    && make install \
-    && cd ../..
+    && make install
 
 # build jaeger-client-cpp
-RUN cd jaeger-client-cpp \
+RUN cd /jaeger-client-cpp \
     && mkdir build \
     && cd build \
     && cmake -DBUILD_TESTING=OFF .. || cat /jaeger-client-cpp/build/CMakeFiles/CMakeOutput.log \
     && make \
-    && make install \
-    && cd ../..
+    && make install
 
-# # build nginx-opentracing
-# RUN cd nginx-opentracing \
-#     && mkdir build \
-#     && cd build \
-#     && cmake .. \
-#     && make \
-#     && make install \
-#     && cd ../..
-
-RUN cd nginx-opentracing \
+# download nginx-opentracing
+RUN mkdir -p /nginx-opentracing \
+    && cd /nginx-opentracing \
     && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
-    tar -xzf - \
-    && cd ..
+    tar -xzf -
 
+# list generated files to copy part of them into the runtime container
 RUN ls -latr opentracing-cpp/build/output \
     && ls -latr jaeger-client-cpp/build \
     && ls -latr nginx-opentracing
@@ -58,17 +48,14 @@ RUN ls -latr opentracing-cpp/build/output \
 FROM openresty/openresty:1.15.8.2-6-alpine
 
 LABEL maintainer="estafette.io" \
-      description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
+      description="The openresty sidecar to proxy traffic to application containers and handling TLS offloading and exposing metrics"
 
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext libc6-compat && \
+    apk add --update inotify-tools gettext libc6-compat gcompat && \
     rm -rf /var/cache/apk/*
 
-# Copy nginx configuration files
-# COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
-COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
-
+# copy all tracing related files built in the previous stage
 COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
 COPY --from=0 /opentracing-cpp/build/output/libopentracing_mocktracer.so /usr/local/lib/libopentracing_mocktracer.so
 COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so /usr/local/lib/libjaegertracing_plugin.so
@@ -76,6 +63,7 @@ COPY --from=0 /nginx-opentracing/ngx_http_opentracing_module.so /usr/local/openr
 
 EXPOSE 80 81 82 443 9101
 
+COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY cors.conf /tmpl/cors.conf.tmpl
 COPY lua-init.conf /usr/local/openresty/nginx/conf/includes/lua-init.conf
