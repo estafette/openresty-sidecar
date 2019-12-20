@@ -1,8 +1,13 @@
-FROM gcc:9.2.0
+FROM alpine:3.10
 
 ARG OPENTRACING_CPP_VERSION="v1.6.0"
 ARG OPENTRACING_NGINX_VERSION="v0.9.0"
 ARG JAEGER_CPP_VERSION="v0.5.0"
+
+RUN apk update && \
+    apk add \
+        build-base \
+        git
 
 # install cmake
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.16.2/cmake-3.16.2-Linux-x86_64.sh \
