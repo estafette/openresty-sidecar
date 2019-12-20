@@ -62,7 +62,7 @@ LABEL maintainer="estafette.io" \
 
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext && \
+    apk add --update inotify-tools gettext libc6-compat && \
     rm -rf /var/cache/apk/*
 
 # Copy nginx configuration files
