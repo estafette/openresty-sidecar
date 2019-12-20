@@ -1,14 +1,14 @@
-FROM alpine:3.11
+FROM gcc:9.2
 
 ARG OPENTRACING_CPP_VERSION="v1.6.0"
 ARG OPENTRACING_NGINX_VERSION="v0.9.0"
 ARG JAEGER_CPP_VERSION="v0.5.0"
 
-RUN apk update && \
-    apk add \
-        build-base \
-        git \
-        cmake
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      cmake \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # clone repositories to build
 RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
