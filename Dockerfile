@@ -57,7 +57,7 @@ LABEL maintainer="estafette.io" \
 
 # install inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext libc6-compat gcompat glibc && \
+    apk add --update inotify-tools gettext libc6-compat gcompat && \
     rm -rf /var/cache/apk/*
 
 # copy all tracing related files built in the previous stage
