@@ -34,7 +34,7 @@ RUN cd jaeger-client-cpp \
     && cd build \
     && cmake .. \
     && make \
-    && make install \
+    # && make install \
     && cd ../..
 
 # # build nginx-opentracing
