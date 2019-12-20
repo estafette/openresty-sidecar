@@ -26,18 +26,16 @@ RUN cd opentracing-cpp \
     && cmake .. \
     && make \
     && make install \
-    && cd .. \
-    && cd ..
+    && cd ../..
 
-# # build jaeger-client-cpp
-# RUN cd jaeger-client-cpp \
-#     && mkdir build \
-#     && cd build \
-#     && cmake .. \
-#     && make \
-#     && make install \
-#     && cd .. \
-#     && cd ..
+# build jaeger-client-cpp
+RUN cd jaeger-client-cpp \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make \
+    && make install \
+    && cd ../..
 
 # # build nginx-opentracing
 # RUN cd nginx-opentracing \
@@ -46,25 +44,29 @@ RUN cd opentracing-cpp \
 #     && cmake .. \
 #     && make \
 #     && make install \
-#     && cd .. \
-#     && cd ..
+#     && cd ../..
 
-RUN ls -latr opentracing-cpp \
-    && ls -latr opentracing-cpp\build \
-    && ls -latr jaeger-client-cpp \
-    && ls -latr nginx-opentracing
+RUN ls -latr opentracing-cpp/build/output \
+    && ls -latr jaeger-client-cpp/build/output \
+    # && ls -latr nginx-opentracing
 
 FROM openresty/openresty:1.15.8.2-6-alpine
 
 LABEL maintainer="estafette.io" \
       description="The openresty-sidecar runs next to estafette-ci-api to handle TLS offloading"
 
+# install inotifywait to detect changes to config and certificates
+RUN apk --update upgrade && \
+    apk add --update inotify-tools gettext && \
+    rm -rf /var/cache/apk/*
+
 # Copy nginx configuration files
 # COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=0 /opentracing-cpp/build/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
-COPY --from=0 /jaeger-client-cpp/build/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
+COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
+COPY --from=0 /opentracing-cpp/build/output/libopentracing_mocktracer.so /usr/local/lib/libopentracing_mocktracer.so
+COPY --from=0 /jaeger-client-cpp/build/output/libjaegertracing_plugin.linux_amd64.so /usr/local/lib/libjaegertracing_plugin.so
 
 EXPOSE 80 81 82 443 9101
 
@@ -76,11 +78,6 @@ COPY jaeger-nginx-config.yaml /tmpl/jaeger-nginx-config.yaml.tmpl
 COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
-
-# install inotifywait to detect changes to config and certificates
-RUN apk --update upgrade && \
-    apk add --update inotify-tools gettext && \
-    rm -rf /var/cache/apk/*
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
