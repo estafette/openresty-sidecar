@@ -54,9 +54,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # copy all tracing related files built in the previous stage
-COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
-COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so /usr/local/lib/libjaegertracing_plugin.so
-COPY --from=0 /nginx-opentracing/ngx_http_opentracing_module.so /usr/local/openresty/nginx/modules/ngx_http_opentracing_module.so
+COPY --from=0 /opentracing-cpp/build/output/libopentracing.so.1.6.0 /usr/local/lib/libopentracing.so
+COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so.0.5.0 /usr/local/lib/libjaegertracing_plugin.so
 
 # download nginx-opentracing
 RUN mkdir -p /usr/local/openresty/nginx/modules \
