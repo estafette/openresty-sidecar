@@ -77,6 +77,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         ${RESTY_ADD_PACKAGE_BUILDDEPS} \
         ${RESTY_ADD_PACKAGE_RUNDEPS} \
     # build opentracing-cpp
+    && mkdir -p /opentracing-cpp \
     && curl -fSL https://github.com/opentracing/opentracing-cpp/archive/${OPENTRACING_CPP_VERSION}.tar.gz | tar xvz -C /opentracing-cpp \
     && cd /opentracing-cpp \
     && mkdir build \
@@ -88,6 +89,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && make \
     && make install \
     # build jaeger-client-cpp
+    && mkdir -p /jaeger-client-cpp \
     && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/${JAEGER_CPP_VERSION}.tar.gz | tar xvz -C /jaeger-client-cpp \
     && cd /jaeger-client-cpp \
     && mkdir build \
@@ -97,6 +99,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && make \
     && make install \
     # get nginx-opentracing to build with openresty as dynamic module
+    && mkdir -p /nginx-opentracing \
     && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/${OPENTRACING_NGINX_VERSION}.tar.gz | tar xvz -C /nginx-opentracing \
     # openresty
     && cd /tmp \
