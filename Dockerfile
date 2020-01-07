@@ -89,7 +89,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && make install \
     # build jaeger-client-cpp
     && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/${JAEGER_CPP_VERSION}.tar.gz | tar xvz -C / \
-    && cd /jaeger-client-cpp-0.50 \
+    && cd /jaeger-client-cpp-0.5.0 \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
@@ -178,7 +178,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     # clean up opentracing source code
     && rm -rf /opentracing-cpp-1.6.0 \
     && rm -rf /nginx-opentracing-0.9.0 \
-    && rm -rf /jaeger-client-cpp-0.50
+    && rm -rf /jaeger-client-cpp-0.5.0
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
