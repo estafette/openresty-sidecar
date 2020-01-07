@@ -1,6 +1,8 @@
 FROM gcc:9.2
 
+# https://github.com/opentracing/opentracing-cpp/releases/tag/v1.6.0
 ARG OPENTRACING_CPP_VERSION="v1.6.0"
+# https://github.com/jaegertracing/jaeger-client-cpp/releases/tag/v0.5.0
 ARG JAEGER_CPP_VERSION="v0.5.0"
 
 RUN apt-get update \
@@ -40,6 +42,7 @@ RUN ls -latr /opentracing-cpp/build/output \
 
 FROM openresty/openresty:1.15.8.2-6-buster
 
+# https://github.com/opentracing-contrib/nginx-opentracing/releases/tag/v0.9.0
 ARG OPENTRACING_NGINX_VERSION="v0.9.0"
 
 LABEL maintainer="estafette.io" \
@@ -58,9 +61,16 @@ COPY --from=0 /opentracing-cpp/build/output/libopentracing.so.1.6.0 /usr/local/l
 COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so.0.5.0 /usr/local/lib/libjaegertracing_plugin.so
 
 # download nginx-opentracing
-RUN mkdir -p /usr/local/openresty/nginx/modules \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      wget \
+    && mkdir -p /usr/local/openresty/nginx/modules \
     && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
-    tar -xzf - -C /usr/local/openresty/nginx/modules
+    tar -xzf - -C /usr/local/openresty/nginx/modules \
+    && apt-get purge -y --auto-remove \
+      wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 80 81 82 443 9101
 
