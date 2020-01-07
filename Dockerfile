@@ -1,7 +1,6 @@
 FROM gcc:9.2
 
 ARG OPENTRACING_CPP_VERSION="v1.6.0"
-ARG OPENTRACING_NGINX_VERSION="v0.9.0"
 ARG JAEGER_CPP_VERSION="v0.5.0"
 
 RUN apt-get update \
@@ -35,18 +34,13 @@ RUN cd /jaeger-client-cpp \
     && make \
     && make install
 
-# download nginx-opentracing
-RUN mkdir -p /nginx-opentracing \
-    && cd /nginx-opentracing \
-    && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
-    tar -xzf -
-
 # list generated files to copy part of them into the runtime container
-RUN ls -latr opentracing-cpp/build/output \
-    && ls -latr jaeger-client-cpp/build \
-    && ls -latr nginx-opentracing
+RUN ls -latr /opentracing-cpp/build/output \
+    && ls -latr /jaeger-client-cpp/build
 
 FROM openresty/openresty:1.15.8.2-6-buster
+
+ARG OPENTRACING_NGINX_VERSION="v0.9.0"
 
 LABEL maintainer="estafette.io" \
       description="The openresty sidecar to proxy traffic to application containers and handling TLS offloading and exposing metrics"
@@ -63,6 +57,12 @@ RUN apt-get update \
 COPY --from=0 /opentracing-cpp/build/output/libopentracing.so /usr/local/lib/libopentracing.so
 COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so /usr/local/lib/libjaegertracing_plugin.so
 COPY --from=0 /nginx-opentracing/ngx_http_opentracing_module.so /usr/local/openresty/nginx/modules/ngx_http_opentracing_module.so
+
+# download nginx-opentracing
+RUN mkdir -p /usr/local/openresty/nginx/modules \
+    && cd /nginx-opentracing \
+    && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
+    tar -xzf - -C /usr/local/openresty/nginx/modules
 
 EXPOSE 80 81 82 443 9101
 
