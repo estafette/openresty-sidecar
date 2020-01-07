@@ -44,7 +44,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --with-stream_ssl_module \
     --with-threads \
     "
-ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing/opentracing"
+ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing-0.9.0/opentracing"
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
 
 ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix"
@@ -77,9 +77,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         ${RESTY_ADD_PACKAGE_BUILDDEPS} \
         ${RESTY_ADD_PACKAGE_RUNDEPS} \
     # build opentracing-cpp
-    && mkdir -p /opentracing-cpp \
-    && curl -fSL https://github.com/opentracing/opentracing-cpp/archive/${OPENTRACING_CPP_VERSION}.tar.gz | tar xvz -C /opentracing-cpp \
-    && cd /opentracing-cpp \
+    && curl -fSL https://github.com/opentracing/opentracing-cpp/archive/${OPENTRACING_CPP_VERSION}.tar.gz | tar xvz -C / \
+    && cd /opentracing-cpp-1.6.0 \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
@@ -89,9 +88,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && make \
     && make install \
     # build jaeger-client-cpp
-    && mkdir -p /jaeger-client-cpp \
-    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/${JAEGER_CPP_VERSION}.tar.gz | tar xvz -C /jaeger-client-cpp \
-    && cd /jaeger-client-cpp \
+    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/${JAEGER_CPP_VERSION}.tar.gz | tar xvz -C / \
+    && cd /jaeger-client-cpp-0.50 \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
@@ -99,8 +97,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && make \
     && make install \
     # get nginx-opentracing to build with openresty as dynamic module
-    && mkdir -p /nginx-opentracing \
-    && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/${OPENTRACING_NGINX_VERSION}.tar.gz | tar xvz -C /nginx-opentracing \
+    && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/${OPENTRACING_NGINX_VERSION}.tar.gz | tar xvz -C / \
     # openresty
     && cd /tmp \
     && if [ -n "${RESTY_EVAL_PRE_CONFIGURE}" ]; then eval $(echo ${RESTY_EVAL_PRE_CONFIGURE}); fi \
@@ -179,9 +176,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && ln -sf /dev/stdout /usr/local/openresty/nginx/logs/access.log \
     && ln -sf /dev/stderr /usr/local/openresty/nginx/logs/error.log \
     # clean up opentracing source code
-    && rm -rf /opentracing-cpp \
-    && rm -rf /nginx-opentracing \
-    && rm -rf /jaeger-client-cpp
+    && rm -rf /opentracing-cpp-1.6.0 \
+    && rm -rf /nginx-opentracing-0.9.0 \
+    && rm -rf /jaeger-client-cpp-0.50
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
