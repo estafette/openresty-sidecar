@@ -1,49 +1,51 @@
-FROM gcc:9.2
+# FROM gcc:9.2
 
-# https://github.com/opentracing/opentracing-cpp/releases/tag/v1.6.0
-ARG OPENTRACING_CPP_VERSION="v1.6.0"
-# https://github.com/jaegertracing/jaeger-client-cpp/releases/tag/v0.5.0
-ARG JAEGER_CPP_VERSION="v0.5.0"
+# # https://github.com/opentracing/opentracing-cpp/releases/tag/v1.6.0
+# ARG OPENTRACING_CPP_VERSION="v1.6.0"
+# # https://github.com/jaegertracing/jaeger-client-cpp/releases/tag/v0.5.0
+# ARG JAEGER_CPP_VERSION="v0.5.0"
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-      cmake \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends \
+#       cmake \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# clone repositories to build
-RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
-    && git clone -q -b ${JAEGER_CPP_VERSION} https://github.com/jaegertracing/jaeger-client-cpp.git
+# # clone repositories to build
+# RUN git clone -q -b ${OPENTRACING_CPP_VERSION} https://github.com/opentracing/opentracing-cpp.git \
+#     && git clone -q -b ${JAEGER_CPP_VERSION} https://github.com/jaegertracing/jaeger-client-cpp.git
 
-# build opentracing-cpp
-RUN cd /opentracing-cpp \
-    && mkdir build \
-    && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release \
-             -DBUILD_MOCKTRACER=OFF \
-             -DBUILD_STATIC_LIBS=OFF \
-             -DBUILD_TESTING=OFF .. \
-    && make \
-    && make install
+# # build opentracing-cpp
+# RUN cd /opentracing-cpp \
+#     && mkdir build \
+#     && cd build \
+#     && cmake -DCMAKE_BUILD_TYPE=Release \
+#              -DBUILD_MOCKTRACER=OFF \
+#              -DBUILD_STATIC_LIBS=OFF \
+#              -DBUILD_TESTING=OFF .. \
+#     && make \
+#     && make install
 
-# build jaeger-client-cpp
-RUN cd /jaeger-client-cpp \
-    && mkdir build \
-    && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release \
-             -DBUILD_STATIC_LIBS=OFF \
-             -DBUILD_TESTING=OFF .. \
-    && make \
-    && make install
+# # build jaeger-client-cpp
+# RUN cd /jaeger-client-cpp \
+#     && mkdir build \
+#     && cd build \
+#     && cmake -DCMAKE_BUILD_TYPE=Release \
+#              -DBUILD_STATIC_LIBS=OFF \
+#              -DBUILD_TESTING=OFF .. \
+#     && make \
+#     && make install
 
-# list generated files to copy part of them into the runtime container
-RUN ls -latr /opentracing-cpp/build/output \
-    && ls -latr /jaeger-client-cpp/build
-
+# # list generated files to copy part of them into the runtime container
+# RUN ls -latr /opentracing-cpp/build/output \
+#     && ls -latr /jaeger-client-cpp/build
+#
 FROM openresty/openresty:1.15.8.2-6-buster
 
 # https://github.com/opentracing-contrib/nginx-opentracing/releases/tag/v0.9.0
 ARG OPENTRACING_NGINX_VERSION="v0.9.0"
+# https://github.com/jaegertracing/jaeger-client-cpp/releases/tag/v0.4.2
+ARG JAEGER_CPP_VERSION="v0.4.2"
 
 LABEL maintainer="estafette.io" \
       description="The openresty sidecar to proxy traffic to application containers and handling TLS offloading and exposing metrics"
@@ -53,24 +55,24 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       inotify-tools \
       gettext \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# copy all tracing related files built in the previous stage
-COPY --from=0 /opentracing-cpp/build/output/libopentracing.so.1.6.0 /usr/local/lib/libopentracing.so
-COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so.0.5.0 /usr/local/lib/libjaegertracing_plugin.so
-
-# download nginx-opentracing
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
       wget \
+    # install nginx-opentracing into NGINX's module directory
     && mkdir -p /usr/local/openresty/nginx/modules \
-    && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
-    tar -xzf - -C /usr/local/openresty/nginx/modules \
+    && cd /usr/local/openresty/nginx/modules \
+    && wget -q -O - https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz \
+        | tar zxf - \
+    # install jaeger
+    && cd /usr/local/lib \
+    && wget -q -O libjaegertracing_plugin.so https://github.com/jaegertracing/jaeger-client-cpp/releases/download/${JAEGER_CPP_VERSION}/libjaegertracing_plugin.linux_amd64.so \
+    # clean packages to reduce image size
     && apt-get purge -y --auto-remove \
       wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# # copy all tracing related files built in the previous stage
+# COPY --from=0 /opentracing-cpp/build/output/libopentracing.so.1.6.0 /usr/local/lib/libopentracing.so
+# COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so.0.5.0 /usr/local/lib/libjaegertracing_plugin.so
 
 EXPOSE 80 81 82 443 9101
 
