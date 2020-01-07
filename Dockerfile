@@ -59,7 +59,6 @@ COPY --from=0 /jaeger-client-cpp/build/libjaegertracing.so.0.5.0 /usr/local/lib/
 
 # download nginx-opentracing
 RUN mkdir -p /usr/local/openresty/nginx/modules \
-    && cd /nginx-opentracing \
     && wget -O- https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${OPENTRACING_NGINX_VERSION}/linux-amd64-nginx-1.15.8-ngx_http_module.so.tgz | \
     tar -xzf - -C /usr/local/openresty/nginx/modules
 
