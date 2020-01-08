@@ -15,13 +15,6 @@ sigterm_handler() {
   echo "Gracefully shutting down openresty in ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
   sleep $GRACEFUL_SHUTDOWN_DELAY_SECONDS
   /usr/local/openresty/bin/openresty -s quit
-
-  # stop inotifywait
-  inotifywait_pid=$(pgrep inotifywait)
-  echo "Received SIGTERM, killing inotifywait with pid $inotifywait_pid..."
-  kill -SIGTERM "$inotifywait_pid"
-  wait "$inotifywait_pid"
-  echo "Killed inotifywait"
 }
 
 # setup handlers
