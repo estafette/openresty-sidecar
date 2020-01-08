@@ -54,10 +54,10 @@ pipelines:
     - apk add curl
     - curl --retry 5 --fail http://myservice.mynamespace.svc.cluster.local/robots.txt
 
-    push-to-docker-hub:
-      image: extensions/docker:dev
-      action: push
-      repositories:
-      - estafette
-      tags:
-      - ${ESTAFETTE_GIT_BRANCH}
+  push-to-docker-hub:
+    image: extensions/docker:dev
+    action: push
+    repositories:
+    - estafette
+    tags:
+    - ${ESTAFETTE_GIT_BRANCH}
