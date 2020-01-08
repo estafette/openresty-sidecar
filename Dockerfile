@@ -84,8 +84,8 @@ RUN set -ex \
              -DBUILD_STATIC_LIBS=OFF \
              -DBUILD_TESTING=OFF \
              .. \
-    && make \
-    && make install \
+    && make -j${RESTY_J} \
+    && make -j${RESTY_J} install \
     # build jaeger-client-cpp
     && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/v${JAEGER_CPP_VERSION}.tar.gz | tar xvz -C / \
     && cd /jaeger-client-cpp-${JAEGER_CPP_VERSION} \
@@ -95,8 +95,8 @@ RUN set -ex \
              -DJAEGERTRACING_BUILD_EXAMPLES=OFF \
              -DBUILD_TESTING=OFF \
              .. \
-    && make \
-    && make install \
+    && make -j${RESTY_J} \
+    && make -j${RESTY_J} install \
     # get nginx-opentracing to build with openresty as dynamic module
     && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/v${OPENTRACING_NGINX_VERSION}.tar.gz | tar xvz -C / \
     # openresty
