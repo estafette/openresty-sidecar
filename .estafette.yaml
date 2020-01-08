@@ -36,8 +36,10 @@ pipelines:
       env:
         SERVICE_NAME: myservice
         NAMESPACE: mynamespace
-        ENV OFFLOAD_TO_HOST: ci.estafette.io
+        OFFLOAD_TO_HOST: ci.estafette.io
         OFFLOAD_TO_PORT: 5000
+        OFFLOAD_TO_PROTO: http
+        ENFORCE_HTTPS: false
       readiness:
         path: /robots.txt
         port: 80
