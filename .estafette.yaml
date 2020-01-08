@@ -35,10 +35,13 @@ pipelines:
     tags:
     - ${ESTAFETTE_GIT_BRANCH}
 
-  test:
+  integration-test-start-upstream:
     services:
     - name: upstream
       image: estafette/estafette-ci-web:0.1.634
+
+  integration-test-start-sidecar:
+    services:
     - name: myservice.mynamespace.svc.cluster.local
       image: estafette/openresty-sidecar:${ESTAFETTE_BUILD_VERSION}
       env:
