@@ -27,6 +27,14 @@ pipelines:
         repositories:
         - estafette
 
+  push-to-docker-hub:
+    image: extensions/docker:dev
+    action: push
+    repositories:
+    - estafette
+    tags:
+    - ${ESTAFETTE_GIT_BRANCH}
+
   test:
     services:
     - name: localhost
@@ -41,17 +49,9 @@ pipelines:
         OFFLOAD_TO_PROTO: http
         ENFORCE_HTTPS: false
       readiness:
-        path: /manifest/encrypt
+        path: /robots.txt
         port: 80
     image: alpine:3.10
     commands:
     - apk add curl
-    - curl --retry 5 --fail http://myservice.mynamespace.svc.cluster.local/manifest/encrypt
-
-  push-to-docker-hub:
-    image: extensions/docker:dev
-    action: push
-    repositories:
-    - estafette
-    tags:
-    - ${ESTAFETTE_GIT_BRANCH}
+    - curl --retry 5 --fail http://myservice.mynamespace.svc.cluster.local/robots.txt
