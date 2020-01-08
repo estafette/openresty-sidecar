@@ -188,7 +188,8 @@ RUN set -ex \
     # clean up opentracing source code
     && rm -rf /opentracing-cpp-${OPENTRACING_CPP_VERSION} \
     && rm -rf /nginx-opentracing-${OPENTRACING_NGINX_VERSION} \
-    && rm -rf /jaeger-client-cpp-${JAEGER_CPP_VERSION}
+    && rm -rf /jaeger-client-cpp-${JAEGER_CPP_VERSION} \
+    && rm -rf /root/.hunter
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
