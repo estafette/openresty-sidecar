@@ -15,7 +15,6 @@ ARG RESTY_OPENSSL_VERSION="1.1.0k"
 ARG RESTY_PCRE_VERSION="8.43"
 ARG RESTY_J="8"
 ARG RESTY_CONFIG_OPTIONS="\
-    --with-dtrace-probes \
     --with-http_addition_module \
     --with-http_auth_request_module \
     --with-http_dav_module \
