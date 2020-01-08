@@ -197,6 +197,9 @@ RUN set -ex \
     && /usr/local/openresty/bin/resty -e 'print(package.path)' \
     && /usr/local/openresty/bin/resty -e 'print(package.cpath)'
 
+RUN find / -name "core.so"
+RUN find / -name "resty.so"
+
 # Add LuaRocks paths
 # If OpenResty changes, these may need updating:
 #    /usr/local/openresty/bin/resty -e 'print(package.path)'
