@@ -193,6 +193,10 @@ RUN set -ex \
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
 
+RUN set -ex \
+    && /usr/local/openresty/bin/resty -e 'print(package.path)' \
+    && /usr/local/openresty/bin/resty -e 'print(package.cpath)'
+
 # Add LuaRocks paths
 # If OpenResty changes, these may need updating:
 #    /usr/local/openresty/bin/resty -e 'print(package.path)'
