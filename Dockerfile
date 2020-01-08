@@ -58,10 +58,6 @@ ARG _RESTY_CONFIG_DEPS="--with-pcre \
     --with-ld-opt='-L/usr/local/openresty/pcre/lib -L/usr/local/openresty/openssl/lib -Wl,-rpath,/usr/local/openresty/pcre/lib:/usr/local/openresty/openssl/lib' \
     "
 
-# embed self-signed certificate for integration testing (at runtime a valid cert is mounted)
-COPY ssl/ssl.pem /etc/ssl/private/ssl.pem
-COPY ssl/ssl.key /etc/ssl/private/ssl.key
-
 RUN set -ex \
     && DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -205,6 +201,10 @@ COPY jaeger-nginx-config.yaml /tmpl/jaeger-nginx-config.yaml.tmpl
 COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
+
+# embed self-signed certificate for integration testing (at runtime a valid cert is mounted)
+COPY ssl/ssl.pem /etc/ssl/private/ssl.pem
+COPY ssl/ssl.key /etc/ssl/private/ssl.key
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
