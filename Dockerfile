@@ -48,7 +48,7 @@ ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing-0.9.0/ope
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
 
 ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix"
-ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base"
+ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base libyaml-cpp0.6"
 ARG RESTY_EVAL_PRE_CONFIGURE=""
 ARG RESTY_EVAL_POST_MAKE=""
 
@@ -84,7 +84,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && cmake -DCMAKE_BUILD_TYPE=Release \
              -DBUILD_MOCKTRACER=OFF \
              -DBUILD_STATIC_LIBS=OFF \
-             -DBUILD_TESTING=OFF .. \
+             -DBUILD_TESTING=OFF \
+             .. \
     && make \
     && make install \
     # build jaeger-client-cpp
@@ -93,7 +94,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
-             -DBUILD_TESTING=OFF .. \
+             -DBUILD_TESTING=OFF \
+             .. \
     && make \
     && make install \
     # get nginx-opentracing to build with openresty as dynamic module
