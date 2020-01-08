@@ -13,7 +13,7 @@ ARG RESTY_VERSION="1.15.8.2"
 # ARG RESTY_LUAROCKS_VERSION="3.2.1"
 ARG RESTY_OPENSSL_VERSION="1.1.0k"
 ARG RESTY_PCRE_VERSION="8.43"
-ARG RESTY_J="1"
+ARG RESTY_J="8"
 ARG RESTY_CONFIG_OPTIONS="\
     --with-http_addition_module \
     --with-http_auth_request_module \
