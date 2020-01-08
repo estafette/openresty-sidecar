@@ -15,6 +15,7 @@ ARG RESTY_OPENSSL_VERSION="1.1.1c"
 ARG RESTY_PCRE_VERSION="8.43"
 ARG RESTY_J="8"
 ARG RESTY_CONFIG_OPTIONS="\
+    --with-dtrace-probes \
     --with-http_addition_module \
     --with-http_auth_request_module \
     --with-http_dav_module \
@@ -32,6 +33,7 @@ ARG RESTY_CONFIG_OPTIONS="\
     --with-pcre-jit \
     --with-stream \
     --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
     --with-threads \
     --without-mail_imap_module \
     --without-mail_pop3_module \
@@ -48,8 +50,8 @@ ARG RESTY_EVAL_POST_MAKE=""
 
 # These are not intended to be user-specified
 ARG _RESTY_CONFIG_DEPS="--with-pcre \
-    --with-cc-opt='-DNGX_LUA_ABORT_AT_PANIC -I/usr/local/openresty/pcre/include -I/usr/local/openresty/openssl/include' \
-    --with-ld-opt='-L/usr/local/openresty/pcre/lib -L/usr/local/openresty/openssl/lib -Wl,-rpath,/usr/local/openresty/pcre/lib:/usr/local/openresty/openssl/lib' \
+    --with-cc-opt='-O2 -DNGX_LUA_ABORT_AT_PANIC -I/usr/local/openresty/zlib/include -I/usr/local/openresty/pcre/include -I/usr/local/openresty/openssl/include' \
+    --with-ld-opt='-Wl,-rpath,/usr/local/openresty/luajit/lib -L/usr/local/openresty/zlib/lib -L/usr/local/openresty/pcre/lib -L/usr/local/openresty/openssl/lib -Wl,-rpath,/usr/local/openresty/zlib/lib:/usr/local/openresty/pcre/lib:/usr/local/openresty/openssl/lib' \
     "
 
 RUN set -ex \
