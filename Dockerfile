@@ -77,6 +77,7 @@ RUN set -ex \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DENABLE_LINTING=OFF \
              -DBUILD_MOCKTRACER=OFF \
              -DBUILD_STATIC_LIBS=OFF \
              -DBUILD_TESTING=OFF \
@@ -89,6 +90,7 @@ RUN set -ex \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DJAEGERTRACING_BUILD_EXAMPLES=OFF \
              -DBUILD_TESTING=OFF \
              .. \
     && make \
@@ -182,7 +184,10 @@ RUN set -ex \
     && rm -rf /opentracing-cpp-${OPENTRACING_CPP_VERSION} \
     && rm -rf /nginx-opentracing-${OPENTRACING_NGINX_VERSION} \
     && rm -rf /jaeger-client-cpp-${JAEGER_CPP_VERSION} \
-    && rm -rf /root/.hunter
+    && rm -rf /root/.hunter \
+    && rm -rf /usr/local/lib/cmake \
+    && rm -rf /usr/local/lib/libjaegertracing.a \
+    && rm -rf /usr/local/openresty/luajit/lib/luajit-5.1.a
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
