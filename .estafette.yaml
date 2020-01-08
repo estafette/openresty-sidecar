@@ -39,6 +39,9 @@ pipelines:
     services:
     - name: upstream
       image: estafette/estafette-ci-web:0.1.634
+      readiness:
+        path: /robots.txt
+        port: 5000
 
   integration-test-start-sidecar:
     services:
