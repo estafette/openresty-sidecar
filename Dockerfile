@@ -10,6 +10,7 @@ ARG JAEGER_CPP_VERSION="0.5.0"
 # https://github.com/openresty/docker-openresty/blob/1.15.8.2-6/bionic/Dockerfile
 # Docker Build Arguments
 ARG RESTY_VERSION="1.15.8.2"
+ARG RESTY_LUAROCKS_VERSION="3.2.1"
 ARG RESTY_OPENSSL_VERSION="1.1.0k"
 ARG RESTY_PCRE_VERSION="8.43"
 ARG RESTY_J="1"
@@ -148,7 +149,19 @@ RUN set -ex \
         openssl-${RESTY_OPENSSL_VERSION}.tar.gz openssl-${RESTY_OPENSSL_VERSION} \
         pcre-${RESTY_PCRE_VERSION}.tar.gz pcre-${RESTY_PCRE_VERSION} \
         openresty-${RESTY_VERSION}.tar.gz openresty-${RESTY_VERSION} \
+    && curl -fSL https://luarocks.github.io/luarocks/releases/luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
+    && tar xzf luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
+    && cd luarocks-${RESTY_LUAROCKS_VERSION} \
+    && ./configure \
+        --prefix=/usr/local/openresty/luajit \
+        --with-lua=/usr/local/openresty/luajit \
+        --lua-suffix=jit-2.1.0-beta3 \
+        --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 \
+    && make build \
+    && make install \
+    && cd /tmp \
     && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
+    && rm -rf luarocks-${RESTY_LUAROCKS_VERSION} luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && if [ -n "${RESTY_ADD_PACKAGE_BUILDDEPS}" ]; then DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge ${RESTY_ADD_PACKAGE_BUILDDEPS} ; fi \
     # remove other build dependencies to shrink the final image
     && DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge \
