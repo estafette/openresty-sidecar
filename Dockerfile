@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 
-# https://github.com/opentracing/opentracing-cpp/releases/tag/v1.6.0
+# https://github.com/opentracing/opentracing-cpp/releases/tag/v1.5.0
 ARG OPENTRACING_CPP_VERSION="1.5.0"
 # https://github.com/opentracing-contrib/nginx-opentracing/releases/tag/v0.9.0
 ARG OPENTRACING_NGINX_VERSION="0.9.0"
@@ -48,7 +48,7 @@ ARG RESTY_CONFIG_OPTIONS="\
 ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing-${OPENTRACING_NGINX_VERSION}/opentracing"
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
 
-ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix"
+ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix libthrift-dev nlohmann-json3-dev libyaml-cpp-dev"
 ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base libyaml-cpp0.6 procps"
 ARG RESTY_EVAL_PRE_CONFIGURE=""
 ARG RESTY_EVAL_POST_MAKE=""
@@ -96,6 +96,7 @@ RUN set -ex \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
+             -DHUNTER_ENABLED=0 \
              -DBUILD_TESTING=OFF \
              .. \
     && make \
