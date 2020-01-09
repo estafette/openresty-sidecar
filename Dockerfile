@@ -160,10 +160,8 @@ RUN set -ex \
     # && make install \
     # && cd /tmp \
     # strip symbols from binaries
-    && strip /usr/local/openresty/openssl/bin/openssl \
-    && strip /usr/local/openresty/openssl/lib/libcrypto.so.1.1 \
-    && strip /usr/local/openresty/openssl/lib/libssl.so.1.1 \
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
+    && { find /usr/local/openresty -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
     # && rm -rf luarocks-${RESTY_LUAROCKS_VERSION} luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && if [ -n "${RESTY_ADD_PACKAGE_BUILDDEPS}" ]; then DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge ${RESTY_ADD_PACKAGE_BUILDDEPS} ; fi \
