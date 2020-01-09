@@ -196,7 +196,11 @@ RUN set -ex \
     && rm -rf /usr/local/openresty/openssl/lib/libssl.a \
     && rm -rf /usr/local/openresty/pcre/lib/libpcreposix.a \
     && rm -rf /usr/local/openresty/pcre/lib/libpcre.a \
-    && rm -rf /usr/local/openresty/luajit/lib/libluajit-5.1.a
+    && rm -rf /usr/local/openresty/luajit/lib/libluajit-5.1.a \
+    # strip symbols from binaries
+    && strip /usr/local/openresty/openssl/bin/openssl \
+    && strip /usr/local/openresty/openssl/lib/libcrypto.so.1.1 \
+    && strip /usr/local/openresty/openssl/lib/libssl.so.1.1
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
