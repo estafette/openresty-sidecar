@@ -188,7 +188,9 @@ RUN set -ex \
     && rm -rf /root/.hunter \
     && rm -rf /usr/local/lib/cmake \
     && rm -rf /usr/local/lib/libjaegertracing.a \
-    && rm -rf /usr/local/openresty/luajit/lib/luajit-5.1.a
+    && rm -rf /usr/local/openresty/luajit/lib/luajit-5.1.a \
+    && rm -rf /usr/local/openresty/openssl/lib/libcrypto.a \
+    && rm -rf /usr/local/openresty/openssl/lib/libssl.a
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
@@ -198,8 +200,7 @@ RUN set -ex \
     && /usr/local/openresty/bin/resty -e 'print(package.cpath)' \
     && /usr/local/openresty/bin/openresty -V
 
-RUN find / -name "core.so"
-RUN find / -name "resty.so"
+RUN find / -type f -iname "*.a"
 
 # Add LuaRocks paths
 # If OpenResty changes, these may need updating:
