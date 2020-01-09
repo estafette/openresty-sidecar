@@ -3,24 +3,16 @@ set -e
 
 # inspired by https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86#.k9cjxrx6o
 
-# SIGHUP-handler
-sighup_handler() {
-  echo "Reloading openresty configuration and certificates..."
-  /usr/local/openresty/bin/openresty -s reload
-}
-
 # SIGTERM-handler
 sigterm_handler() {
+  echo "Received SIGTERM, stopping inotify process..."
+  kill $inotify_pid
+
   # kubernetes sends a sigterm, where openresty needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down openresty in ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
   sleep $GRACEFUL_SHUTDOWN_DELAY_SECONDS
   /usr/local/openresty/bin/openresty -s quit
 }
-
-# setup handlers
-echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' 1 # SIGHUP
-trap 'kill ${!}; sigterm_handler' 15 # SIGTERM
 
 # enforce https
 if [ "${ENFORCE_HTTPS}" != "true" ]
@@ -60,14 +52,15 @@ init_inotifywait() {
   done
 }
 init_inotifywait &
+inotify_pid=${!}
 
 # run openresty
 echo "Starting openresty..."
 /usr/local/openresty/bin/openresty &
+openresty_pid=${!}
 
-# wait forever until sigterm_handler stops all background processes
-while true
-do
-  tail -f /dev/null & wait ${!}
-done
-echo "Finished shutting down openresty!"
+# setup handlers
+echo "Setting up signal handlers..."
+trap 'sigterm_handler' 15 # SIGTERM
+
+wait $openresty_pid

@@ -43,7 +43,7 @@ ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing-${OPENTRA
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
 
 ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix"
-ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base libyaml-cpp0.6 procps"
+ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base libyaml-cpp0.6"
 ARG RESTY_EVAL_PRE_CONFIGURE=""
 ARG RESTY_EVAL_POST_MAKE=""
 
