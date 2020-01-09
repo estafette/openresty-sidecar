@@ -160,9 +160,14 @@ RUN set -ex \
     # && make install \
     # && cd /tmp \
     # strip symbols from binaries
-    && { find /usr/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
+    && { find /usr/lib/ssl -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
+    && { find /usr/lib/x86_64-linux-gnu/engines-1.1 -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && { find /usr/local/openresty -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
+    && strip --strip-all /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 \
+    && strip --strip-all /usr/lib/x86_64-linux-gnu/libinotifytools.so.0.4.1 \
+    && strip --strip-all /usr/lib/x86_64-linux-gnu/libssl.so.1.1 \
+    && strip --strip-all /usr/lib/x86_64-linux-gnu/libyaml-cpp.so.0.6.2 \
     && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
     # && rm -rf luarocks-${RESTY_LUAROCKS_VERSION} luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && if [ -n "${RESTY_ADD_PACKAGE_BUILDDEPS}" ]; then DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge ${RESTY_ADD_PACKAGE_BUILDDEPS} ; fi \
