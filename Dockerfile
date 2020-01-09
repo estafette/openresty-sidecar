@@ -160,6 +160,7 @@ RUN set -ex \
     # && make install \
     # && cd /tmp \
     # strip symbols from binaries
+    && { find /usr/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && { find /usr/local/openresty -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
