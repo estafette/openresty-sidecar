@@ -42,7 +42,7 @@ ARG RESTY_CONFIG_OPTIONS="\
 ARG RESTY_CONFIG_OPTIONS_MORE="--add-dynamic-module=/nginx-opentracing-${OPENTRACING_NGINX_VERSION}/opentracing"
 ARG RESTY_LUAJIT_OPTIONS="--with-luajit-xcflags='-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT'"
 
-ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix"
+ARG RESTY_ADD_PACKAGE_BUILDDEPS="cmake dos2unix binutils"
 ARG RESTY_ADD_PACKAGE_RUNDEPS="inotify-tools gettext-base libyaml-cpp0.6"
 ARG RESTY_EVAL_PRE_CONFIGURE=""
 ARG RESTY_EVAL_POST_MAKE=""
@@ -159,6 +159,11 @@ RUN set -ex \
     # && make build \
     # && make install \
     # && cd /tmp \
+    # strip symbols from binaries
+    && strip /usr/local/openresty/openssl/bin/openssl \
+    && strip /usr/local/openresty/openssl/lib/libcrypto.so.1.1 \
+    && strip /usr/local/openresty/openssl/lib/libssl.so.1.1 \
+    && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && if [ -n "${RESTY_EVAL_POST_MAKE}" ]; then eval $(echo ${RESTY_EVAL_POST_MAKE}); fi \
     # && rm -rf luarocks-${RESTY_LUAROCKS_VERSION} luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && if [ -n "${RESTY_ADD_PACKAGE_BUILDDEPS}" ]; then DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge ${RESTY_ADD_PACKAGE_BUILDDEPS} ; fi \
@@ -196,11 +201,7 @@ RUN set -ex \
     && rm -rf /usr/local/openresty/openssl/lib/libssl.a \
     && rm -rf /usr/local/openresty/pcre/lib/libpcreposix.a \
     && rm -rf /usr/local/openresty/pcre/lib/libpcre.a \
-    && rm -rf /usr/local/openresty/luajit/lib/libluajit-5.1.a \
-    # strip symbols from binaries
-    && strip /usr/local/openresty/openssl/bin/openssl \
-    && strip /usr/local/openresty/openssl/lib/libcrypto.so.1.1 \
-    && strip /usr/local/openresty/openssl/lib/libssl.so.1.1
+    && rm -rf /usr/local/openresty/luajit/lib/libluajit-5.1.a
 
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
