@@ -5,14 +5,13 @@ set -e
 
 # SIGTERM-handler
 sigterm_handler() {
-  echo "Received SIGTERM, stopping inotify process..."
-  kill $inotify_pid
-
   # kubernetes sends a sigterm, where openresty needs SIGQUIT for graceful shutdown
-  echo "Gracefully shutting down openresty in ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
+  echo "Received SIGTERM, allowing connections to drain for ${GRACEFUL_SHUTDOWN_DELAY_SECONDS}s..."
   sleep $GRACEFUL_SHUTDOWN_DELAY_SECONDS
+  echo "Gracefully shutting down openresty..."
   /usr/local/openresty/bin/openresty -s quit
   wait $openresty_pid
+  echo "Openresty has gracefully terminated, exiting entrypoint script..."
   exit
 }
 
@@ -27,7 +26,7 @@ fi
 
 # substitute envvars in nginx.conf
 echo "Generating nginx.conf..."
-cat ${NGINX_CONF_TMPL_PATH} | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$OFFLOAD_TO_PROTO,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE,\$DNS_ZONE,\$CLIENT_BODY_TIMEOUT,\$CLIENT_HEADER_TIMEOUT,\$CLIENT_BODY_BUFFER_SIZE,\$CLIENT_MAX_BODY_SIZE,\$KEEPALIVE_TIMEOUT,\$KEEPALIVE_TIMEOUT_HEADER,\$SEND_TIMEOUT,\$PROXY_BUFFERING,\$PROXY_BUFFERS_NUMBER,\$PROXY_BUFFERS_SIZE,\$PROXY_BUFFER_SIZE,\$PROXY_CONNECT_TIMEOUT,\$PROXY_SEND_TIMEOUT,\$PROXY_READ_TIMEOUT,\$PROMETHEUS_METRICS_PORT,\$SSL_PROTOCOLS,\$UPSTREAM_KEEPALIVE_CONNECTIONS > /usr/local/openresty/nginx/conf/nginx.conf
+cat ${NGINX_CONF_TMPL_PATH} | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$OFFLOAD_TO_PROTO,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE,\$DNS_ZONE,\$CLIENT_BODY_TIMEOUT,\$CLIENT_HEADER_TIMEOUT,\$CLIENT_BODY_BUFFER_SIZE,\$CLIENT_MAX_BODY_SIZE,\$KEEPALIVE_TIMEOUT,\$KEEPALIVE_TIMEOUT_HEADER,\$SEND_TIMEOUT,\$PROXY_REQUEST_BUFFERING,\$PROXY_BUFFERING,\$PROXY_BUFFERS_NUMBER,\$PROXY_BUFFERS_SIZE,\$PROXY_BUFFER_SIZE,\$PROXY_CONNECT_TIMEOUT,\$PROXY_SEND_TIMEOUT,\$PROXY_READ_TIMEOUT,\$PROMETHEUS_METRICS_PORT,\$SSL_PROTOCOLS,\$UPSTREAM_KEEPALIVE_CONNECTIONS > /usr/local/openresty/nginx/conf/nginx.conf
 
 if [ "${SETUP_CORS}" == "true" ]; then
   echo "Generating cors.conf..."
@@ -54,7 +53,6 @@ init_inotifywait() {
   done
 }
 init_inotifywait &
-inotify_pid=${!}
 
 # run openresty
 echo "Starting openresty..."
