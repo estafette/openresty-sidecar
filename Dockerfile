@@ -49,7 +49,7 @@ ARG RESTY_EVAL_POST_MAKE=""
 
 # These are not intended to be user-specified
 ARG _RESTY_CONFIG_DEPS="--with-pcre \
-    --with-cc-opt='-Os -DNGX_LUA_ABORT_AT_PANIC -I/usr/local/openresty/zlib/include -I/usr/local/openresty/pcre/include -I/usr/local/openresty/openssl/include' \
+    --with-cc-opt='-Os -march=x86-64 -DNGX_LUA_ABORT_AT_PANIC -I/usr/local/openresty/zlib/include -I/usr/local/openresty/pcre/include -I/usr/local/openresty/openssl/include' \
     --with-ld-opt='-Wl,-rpath,/usr/local/openresty/luajit/lib -L/usr/local/openresty/zlib/lib -L/usr/local/openresty/pcre/lib -L/usr/local/openresty/openssl/lib -Wl,-rpath,/usr/local/openresty/zlib/lib:/usr/local/openresty/pcre/lib:/usr/local/openresty/openssl/lib' \
     "
 
@@ -73,8 +73,8 @@ RUN set -ex \
         ${RESTY_ADD_PACKAGE_BUILDDEPS} \
         ${RESTY_ADD_PACKAGE_RUNDEPS} \
     # set c optimization flags
-    && export CFLAGS="$CFLAGS -Os" \
-    && export CXXFLAGS="$CXXFLAGS -Os" \
+    && export CFLAGS="$CFLAGS -Os -march=x86-64" \
+    && export CXXFLAGS="$CXXFLAGS -Os -march=x86-64" \
     # build opentracing-cpp
     && curl -fSL https://github.com/opentracing/opentracing-cpp/archive/v${OPENTRACING_CPP_VERSION}.tar.gz | tar xvz -C / \
     && cd /opentracing-cpp-${OPENTRACING_CPP_VERSION} \
