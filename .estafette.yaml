@@ -46,6 +46,7 @@ pipelines:
         OFFLOAD_TO_PORT: 5000
         OFFLOAD_TO_PROTO: http
         ENFORCE_HTTPS: false
+        GRACEFUL_SHUTDOWN_DELAY_SECONDS: 3
       readiness:
         path: /robots.txt
         port: 80
