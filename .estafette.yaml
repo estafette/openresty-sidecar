@@ -5,7 +5,7 @@ labels:
   team: estafette-team
   language: docker
 
-pipelines:
+stages:
   bake:
     image: extensions/docker:dev
     action: build
@@ -60,5 +60,6 @@ pipelines:
     action: push
     repositories:
     - estafette
+    - estafette.secret(8iAyCQsZR9G_QL5j.8Gr-c7wZmiI26N7cZZ5j-vgkbnHy332sKBflWXYsN4DEkGjo.8nakfKoJmig2qoXLd5xr5LAzdXmJoipH1B7_kNdmzFOq6L6LBUzbrT3aF7Qsy6weWMxOYxev)
     tags:
     - ${ESTAFETTE_GIT_BRANCH}
