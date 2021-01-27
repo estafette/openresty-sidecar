@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.19.3.1-2-buster
+FROM opentracing/openresty:0.10.0
 
 # sidecar specifics
 
