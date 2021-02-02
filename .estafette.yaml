@@ -67,7 +67,6 @@ stages:
     tags:
     - ${ESTAFETTE_GIT_BRANCH}
 
-
 releases:
   windows:
     builder:
