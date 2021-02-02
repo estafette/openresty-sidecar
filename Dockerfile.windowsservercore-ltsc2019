@@ -4,7 +4,7 @@
 ARG RESTY_INSTALL_BASE="microsoft/windowsservercore"
 ARG RESTY_INSTALL_TAG="ltsc2019"
 
-FROM microsoft/windowsservercore:ltsc2019 AS downloader
+FROM mcr.microsoft.com/windows/servercore:ltsc2019 AS downloader
 
 ARG RESTY_VERSION="1.15.8.1"
 
@@ -22,7 +22,7 @@ RUN Invoke-WebRequest -Uri "https://chocolatey.org/install.ps1" -UseBasicParsing
     mv .\openresty-*\ .\openresty ; 
 
 
-FROM microsoft/windowsservercore:ltsc2019 
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
 ARG RESTY_INSTALL_BASE="microsoft/windowsservercore"
 ARG RESTY_INSTALL_TAG="ltsc2019"
