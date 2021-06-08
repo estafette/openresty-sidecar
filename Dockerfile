@@ -250,7 +250,7 @@ COPY ssl/ssl.key /etc/ssl/private/ssl.key
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     OFFLOAD_TO_PROTO=http \
-    PROXY_HOST='$host' \
+    PROXY_HOST='host' \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow all;" \
     SERVICE_NAME="myservice" \
