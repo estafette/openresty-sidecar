@@ -125,7 +125,7 @@ RUN set -ex \
     && make -j${RESTY_J} \
     && make -j${RESTY_J} install_sw \
     && cd /tmp \
-    && curl -fSL https://ftp.pcre.org/pub/pcre/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
+    && curl -fSL https://nav.dl.sourceforge.net/project/pcre/pcre/${RESTY_PCRE_VERSION}/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
     && tar xzf pcre-${RESTY_PCRE_VERSION}.tar.gz \
     && cd /tmp/pcre-${RESTY_PCRE_VERSION} \
     && ./configure \
@@ -248,8 +248,11 @@ COPY ssl/ssl.key /etc/ssl/private/ssl.key
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
+    OFFLOAD_TO_HOST_GRPC=localhost \
     OFFLOAD_TO_PORT=80 \
+    OFFLOAD_TO_PORT_GRPC=80 \
     OFFLOAD_TO_PROTO=http \
+    OFFLOAD_TO_PROTO_GRPC=grpc \
     PROXY_HOST='host' \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow all;" \
