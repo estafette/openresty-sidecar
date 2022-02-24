@@ -248,11 +248,8 @@ COPY ssl/ssl.key /etc/ssl/private/ssl.key
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
-    OFFLOAD_TO_HOST_GRPC=localhost \
     OFFLOAD_TO_PORT=80 \
-    OFFLOAD_TO_PORT_GRPC=80 \
     OFFLOAD_TO_PROTO=http \
-    OFFLOAD_TO_PROTO_GRPC=grpc \
     PROXY_HOST='host' \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow all;" \
