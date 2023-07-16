@@ -9,7 +9,7 @@ ARG JAEGER_CPP_VERSION="0.5.0"
 
 # https://github.com/openresty/docker-openresty/blob/1.15.8.2-6/bionic/Dockerfile
 # Docker Build Arguments
-ARG RESTY_VERSION="1.15.8.2"
+ARG RESTY_VERSION="1.15.8.3"
 # ARG RESTY_LUAROCKS_VERSION="3.2.1"
 ARG RESTY_OPENSSL_VERSION="1.1.0k"
 ARG RESTY_PCRE_VERSION="8.43"
