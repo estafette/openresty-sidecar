@@ -62,7 +62,6 @@ RUN set -ex \
         gettext-base \
         libgd-dev \
         libgeoip-dev \
-        libgd2-xpm-dev \
         libncurses5-dev \
         libperl-dev \
         libreadline-dev \
