@@ -214,13 +214,8 @@ RUN set -ex \
 # Add additional binaries into PATH for convenience
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
 # Set default logging level
-# The value can be changed at runtime with the LOG_LEVEL environment variable
-# You can set the values based on status codes you want to see, for example:
-# 0 - status codes start with
-# 1 - status codes start with 1
-# 35 - status codes start with 3 and 5
-# 045 - status codes start with 0, 4 and 5
-ENV LOG_LEVEL=045
+# The default is 400, which logs requests with status code >= 400
+ENV LOG_LEVEL=400
 
 RUN set -ex \
     && /usr/local/openresty/bin/resty -e 'print(package.path)' \
