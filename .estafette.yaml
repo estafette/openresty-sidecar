@@ -38,7 +38,7 @@ stages:
   integration-test-start-sidecar:
     services:
     - name: myservice.mynamespace.svc.cluster.local
-      image: estafette/openresty-sidecar:${ESTAFETTE_BUILD_VERSION}
+      image: europe-docker.pkg.dev/travix-com/eu-docker-travix/openresty-sidecar:${ESTAFETTE_BUILD_VERSION}
       env:
         SERVICE_NAME: myservice
         NAMESPACE: mynamespace
