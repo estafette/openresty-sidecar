@@ -60,9 +60,6 @@ stages:
     action: push
     repositories:
     - europe-docker.pkg.dev/travix-com/eu-docker-travix
-    - estafette.secret(8iAyCQsZR9G_QL5j.8Gr-c7wZmiI26N7cZZ5j-vgkbnHy332sKBflWXYsN4DEkGjo.8nakfKoJmig2qoXLd5xr5LAzdXmJoipH1B7_kNdmzFOq6L6LBUzbrT3aF7Qsy6weWMxOYxev)
-    - estafette.secret(6i8hce18v-kOZWbj.l4XpDe6xnBXbUl9x6328Fq0Acwzz5QdgjktPU8uW8_TJ72HJ.hZ-zAvihnB_bEARm-X-0COUXaARBxtsvnvrxgvNCSJm1PfVXaLK7Du5jJemouRGxzNy0KpTj)
-    - estafette.secret(IZdhuKxZnZ19kScy.Qnene9EasP5JtqCV225yBD1F9g_AIOna80uqn66vzTLEXNzQgbs=.RG26coof_e8IsuDf3GhyFDFJrwmAIkYQsS_cDW2ewdcydLMdoFfgUDfyAVfuAIpTVBvKUVZm)
     tags:
     - ${ESTAFETTE_GIT_BRANCH}
 
@@ -88,9 +85,6 @@ releases:
         container: git-clone
         repositories:
         - europe-docker.pkg.dev/travix-com/eu-docker-travix
-        - estafette.secret(8iAyCQsZR9G_QL5j.8Gr-c7wZmiI26N7cZZ5j-vgkbnHy332sKBflWXYsN4DEkGjo.8nakfKoJmig2qoXLd5xr5LAzdXmJoipH1B7_kNdmzFOq6L6LBUzbrT3aF7Qsy6weWMxOYxev)
-        - estafette.secret(6i8hce18v-kOZWbj.l4XpDe6xnBXbUl9x6328Fq0Acwzz5QdgjktPU8uW8_TJ72HJ.hZ-zAvihnB_bEARm-X-0COUXaARBxtsvnvrxgvNCSJm1PfVXaLK7Du5jJemouRGxzNy0KpTj)
-        - estafette.secret(IZdhuKxZnZ19kScy.Qnene9EasP5JtqCV225yBD1F9g_AIOna80uqn66vzTLEXNzQgbs=.RG26coof_e8IsuDf3GhyFDFJrwmAIkYQsS_cDW2ewdcydLMdoFfgUDfyAVfuAIpTVBvKUVZm)
         tags:
         - ${ESTAFETTE_GIT_BRANCH}-windowsservercore-ltsc2019
         pushVersionTag: false
